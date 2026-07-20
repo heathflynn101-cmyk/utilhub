@@ -30,10 +30,10 @@ const LINEUPS = [
   {
     id: "mir_ct_smoke",
     mapId: "mirage", typeId: "smoke",
-    name: "CT Smoke", target: "CT Spawn", difficulty: 3,
+    name: "CT Smoke", target: "CT Spawn", difficulty: 2,
     position: { x: 45, y: 80 },
-    media: null,
-    stats: null,
+    media: "https://assets.csnades.gg/nades/mirage-smoke-pbyd3lrrEt/hq.webm",
+    stats: { airTime: 5.7, throwTime: 6.4, throw: "Jump Throw", precision: "Precise", side: "T" },
   },
   {
     id: "mir_jungle_smoke",

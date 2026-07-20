@@ -48,7 +48,14 @@ function MapDot({ lineup, isActive, onClick }) {
         background: "none",
         border: "none",
         padding: 0,
+        margin: 0,
+        width: 44,
+        height: 44,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
         cursor: "pointer",
+        touchAction: "manipulation",
       }}
       aria-label={lineup.name}
     >
