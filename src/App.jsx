@@ -405,8 +405,8 @@ export default function App() {
 
   const ViewPlaybook = () => (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      <header style={{ padding: "22px 16px 16px", borderBottom: "1px solid #18181b" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+      <header style={{ width: "100%", borderBottom: "1px solid #18181b" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "22px 16px 16px" }}>
           <BookMarked size={26} color="#2563eb" />
           <div>
             <p style={{ color: "#fff", fontWeight: 700, fontSize: 19, margin: 0 }}>My Playbook</p>
@@ -453,7 +453,7 @@ export default function App() {
         @keyframes spin { to { transform: rotate(360deg); } }
         ::-webkit-scrollbar { width: 0; }
       `}</style>
-      <div style={{ maxWidth: 430, margin: "0 auto", height: "100dvh", background: "#000", display: "flex", flexDirection: "column", fontFamily: "monospace, -apple-system, sans-serif", overflow: "hidden" }}>
+      <div style={{ maxWidth: 600, width: "100%", margin: "0 auto", height: "100dvh", background: "#000", display: "flex", flexDirection: "column", fontFamily: "monospace, -apple-system, sans-serif", overflow: "hidden" }}>
         <div style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
           {view === "MAP_SELECT" && <ViewMapSelect />}
           {view === "MAP_VIEW"   && <ViewMapView />}
