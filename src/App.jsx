@@ -5,7 +5,7 @@
 
 import { useState, useEffect } from "react";
 import { db, auth } from "./firebase";
-import { doc, onSnapshot, setDoc } from "firebase/firestore";
+import { collection, doc, onSnapshot, setDoc } from "firebase/firestore";
 import { signInAnonymously, onAuthStateChanged } from "firebase/auth";
 import {
   BookMarked, ChevronLeft, Map, Crosshair, Flame,
@@ -27,64 +27,8 @@ const UTIL_TYPES = [
   { id: "nade",  label: "Nade",  icon: Target, color: "#22c55e" },
 ];
 
-const LINEUPS = [
-  {
-    id: "mir_window_smoke",
-    mapId: "mirage", typeId: "smoke",
-    name: "Window Smoke", target: "Mid Window", difficulty: 2,
-    position: { x: 40, y: 45 },
-    media: "https://assets.csnades.gg/nades/mirage-smoke-VrvjVQyEOz/hq.mp4",
-    stats: { airTime: 7.2, throwTime: 7.9, throw: "Running + Jump Throw", precision: "Precise", side: "T" },
-  },
-  {
-    id: "mir_con_smoke",
-    mapId: "mirage", typeId: "smoke",
-    name: "Connector Smoke", target: "Connector", difficulty: 2,
-    position: { x: 50, y: 52 },
-    media: "https://assets.csnades.gg/nades/mirage-smoke-gix2YshKRu/hq.mp4",
-    stats: { airTime: 6.1, throwTime: 10.2, throw: "Jump Throw", precision: "Very Precise", side: "T" },
-  },
-  {
-    id: "mir_stairs_smoke",
-    mapId: "mirage", typeId: "smoke",
-    name: "Stairs Smoke", target: "A-Site Stairs", difficulty: 1,
-    position: { x: 55, y: 65 },
-    media: "https://assets.csnades.gg/nades/mirage-smoke-HM7RUQkS6z/hq.mp4",
-    stats: { airTime: 9.4, throwTime: 8.9, throw: "Jump Throw", precision: "Precise", side: "T" },
-  },
-  {
-    id: "mir_ct_smoke",
-    mapId: "mirage", typeId: "smoke",
-    name: "CT Smoke", target: "CT Spawn", difficulty: 3,
-    position: { x: 45, y: 80 },
-    media: "https://placehold.co/640x360/0f172a/2563eb?text=CT+Smoke&font=montserrat",
-    stats: null,
-  },
-  {
-    id: "mir_jungle_smoke",
-    mapId: "mirage", typeId: "smoke",
-    name: "Jungle Smoke", target: "Jungle", difficulty: 2,
-    position: { x: 50, y: 65 },
-    media: "https://assets.csnades.gg/nades/mirage-smoke-5w0tr1Gtez/hq.mp4",
-    stats: { airTime: 9.7, throwTime: 9.0, throw: "Jump Throw", precision: "Precise", side: "T" },
-  },
-  {
-    id: "inf_coffins_smoke",
-    mapId: "inferno", typeId: "smoke",
-    name: "Coffins Smoke", target: "B-Site Coffins", difficulty: 2,
-    position: { x: 68, y: 55 },
-    media: "https://assets.csnades.gg/nades/inferno-smoke-j6asRNfisY/hq.mp4",
-    stats: { airTime: 4.5, throwTime: 11.0, throw: "Running + Jump Throw", precision: "Very Precise", side: "T" },
-  },
-  {
-    id: "d2_xbox_smoke",
-    mapId: "dust2", typeId: "smoke",
-    name: "Xbox Smoke", target: "Mid Xbox", difficulty: 3,
-    position: { x: 50, y: 50 },
-    media: "https://assets.csnades.gg/nades/dust2-smoke-pXWCQLmYhk/hq.mp4",
-    stats: { airTime: 5.8, throwTime: 8.5, throw: "Jump Throw", precision: "Precise", side: "T" },
-  },
-];
+// Lineups now live in Firestore (`lineups` collection, seeded via scripts/migrate.mjs)
+// and are loaded at runtime — see the `lineups` state + onSnapshot effect in App().
 
 const diffLabel = (n) => ["", "Easy", "Medium", "Hard"][n] || "";
 const diffColor = (n) => ["", "#22c55e", "#eab308", "#ef4444"][n] || "#64748b";
@@ -151,6 +95,20 @@ export default function App() {
   const [detail,     setDetail]     = useState(null);
   const [playbook,   setPlaybook]   = useState({});
   const [uid,        setUid]        = useState(null);
+  const [lineups,        setLineups]        = useState([]);
+  const [lineupsLoading, setLineupsLoading]  = useState(true);
+
+  // Load lineups from Firestore in real-time
+  useEffect(() => {
+    return onSnapshot(
+      collection(db, "lineups"),
+      (snap) => {
+        setLineups(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+        setLineupsLoading(false);
+      },
+      (err) => { console.error(err); setLineupsLoading(false); }
+    );
+  }, []);
 
   // Sign in anonymously so every device gets a persistent playbook
   useEffect(() => {
@@ -173,9 +131,9 @@ export default function App() {
   }, [uid]);
 
   const mapLineups = activeMap
-    ? LINEUPS.filter((l) => l.mapId === activeMap.id && (activeType === "all" || l.typeId === activeType))
+    ? lineups.filter((l) => l.mapId === activeMap.id && (activeType === "all" || l.typeId === activeType))
     : [];
-  const playbookLineups = LINEUPS.filter((l) => playbook[l.id]);
+  const playbookLineups = lineups.filter((l) => playbook[l.id]);
   const playbookByMap = MAPS.reduce((acc, m) => {
     const ls = playbookLineups.filter((l) => l.mapId === m.id);
     if (ls.length) acc[m.id] = ls;
@@ -223,6 +181,12 @@ export default function App() {
       </header>
       <div style={{ flex: 1, overflowY: "auto", padding: 16 }}>
         <p style={{ color: "#71717a", fontSize: 12, fontFamily: "monospace", letterSpacing: "0.1em", marginBottom: 14 }}>SELECT MAP</p>
+        {lineupsLoading ? (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 0", gap: 10 }}>
+            <Loader2 size={24} color="#3f3f46" style={{ animation: "spin 1s linear infinite" }} />
+            <p style={{ color: "#52525b", fontSize: 12, margin: 0 }}>Loading lineups…</p>
+          </div>
+        ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {MAPS.map((m) => (
             <button key={m.id}
@@ -242,12 +206,12 @@ export default function App() {
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                   <span style={{ color: "#fff", fontWeight: 700, fontSize: 16 }}>{m.name}</span>
                   <span style={{ fontFamily: "monospace", fontSize: 13, fontWeight: 700, color: m.accent }}>
-                    {LINEUPS.filter((l) => l.mapId === m.id).length} utils
+                    {lineups.filter((l) => l.mapId === m.id).length} utils
                   </span>
                 </div>
                 <p style={{ color: "#a1a1aa", fontSize: 13, marginTop: 4, marginBottom: 0 }}>
                   {UTIL_TYPES.map((t) => {
-                    const n = LINEUPS.filter((l) => l.mapId === m.id && l.typeId === t.id).length;
+                    const n = lineups.filter((l) => l.mapId === m.id && l.typeId === t.id).length;
                     return n > 0 ? `${n} ${t.label}` : null;
                   }).filter(Boolean).join(" · ")}
                 </p>
@@ -255,6 +219,7 @@ export default function App() {
             </button>
           ))}
         </div>
+        )}
       </div>
       <BottomNav />
     </div>
@@ -387,10 +352,17 @@ export default function App() {
         </header>
         <div style={{ flex: 1, overflowY: "auto" }}>
           <div style={{ aspectRatio: "4/3", width: "100%", background: "#18181b" }}>
-            {detail.media.endsWith(".mp4") || detail.media.endsWith(".webm") ? (
-              <video src={detail.media} controls autoPlay loop muted playsInline style={{ width: "100%", height: "100%", objectFit: "contain", display: "block", background: "#000" }} />
+            {detail.media ? (
+              detail.media.endsWith(".mp4") || detail.media.endsWith(".webm") ? (
+                <video src={detail.media} controls autoPlay loop muted playsInline style={{ width: "100%", height: "100%", objectFit: "contain", display: "block", background: "#000" }} />
+              ) : (
+                <img src={detail.media} alt={detail.name} style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.85, display: "block" }} />
+              )
             ) : (
-              <img src={detail.media} alt={detail.name} style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.85, display: "block" }} />
+              <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                <AlertCircle size={24} color="#3f3f46" />
+                <p style={{ color: "#52525b", fontSize: 12, margin: 0 }}>No video yet</p>
+              </div>
             )}
           </div>
           <div style={{ padding: 16 }}>
