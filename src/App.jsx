@@ -405,34 +405,34 @@ export default function App() {
 
   const ViewPlaybook = () => (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      <header style={{ padding: "20px 16px 12px", borderBottom: "1px solid #18181b" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <BookMarked size={20} color="#2563eb" />
+      <header style={{ padding: "22px 16px 16px", borderBottom: "1px solid #18181b" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <BookMarked size={26} color="#2563eb" />
           <div>
-            <p style={{ color: "#fff", fontWeight: 700, fontSize: 16, margin: 0 }}>My Playbook</p>
-            <p style={{ color: "#52525b", fontSize: 11, fontFamily: "monospace", margin: 0 }}>{playbookLineups.length} SAVED</p>
+            <p style={{ color: "#fff", fontWeight: 700, fontSize: 19, margin: 0 }}>My Playbook</p>
+            <p style={{ color: "#52525b", fontSize: 12, fontFamily: "monospace", margin: 0 }}>{playbookLineups.length} SAVED</p>
           </div>
         </div>
       </header>
       <div style={{ flex: 1, overflowY: "auto", padding: "12px 16px" }}>
         {playbookLineups.length === 0 ? <EmptyPlaybook /> : MAPS.filter((m) => playbookByMap[m.id]).map((m) => (
-          <div key={m.id} style={{ marginBottom: 20 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-              <div style={{ width: 4, height: 16, borderRadius: 2, background: m.accent }} />
-              <p style={{ color: m.accent, fontWeight: 700, fontSize: 13, fontFamily: "monospace", letterSpacing: "0.08em", margin: 0 }}>{m.name.toUpperCase()}</p>
+          <div key={m.id} style={{ marginBottom: 32 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+              <div style={{ width: 5, height: 22, borderRadius: 3, background: m.accent }} />
+              <p style={{ color: m.accent, fontWeight: 700, fontSize: 16, fontFamily: "monospace", letterSpacing: "0.08em", margin: 0 }}>{m.name.toUpperCase()}</p>
             </div>
             {playbookByMap[m.id].map((l) => {
               const type = UTIL_TYPES.find((t) => t.id === l.typeId);
               return (
                 <button key={l.id}
                   onClick={() => { setActiveMap(MAPS.find((mm) => mm.id === l.mapId)); setDetail(l); setView("DETAIL"); }}
-                  style={{ display: "flex", alignItems: "center", gap: 12, background: "#18181b", border: "1px solid #27272a", borderRadius: 10, padding: "11px 13px", textAlign: "left", cursor: "pointer", marginBottom: 6, width: "100%" }}>
-                  <span style={{ width: 32, height: 32, borderRadius: "50%", flexShrink: 0, background: type?.color + "22", border: `1px solid ${type?.color}55`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    {type && <type.icon size={14} color={type.color} />}
+                  style={{ display: "flex", alignItems: "center", gap: 16, background: "#18181b", border: "1px solid #27272a", borderRadius: 14, padding: "18px 16px", textAlign: "left", cursor: "pointer", marginBottom: 10, width: "100%" }}>
+                  <span style={{ width: 48, height: 48, borderRadius: "50%", flexShrink: 0, background: type?.color + "22", border: `1px solid ${type?.color}55`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    {type && <type.icon size={22} color={type.color} />}
                   </span>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ color: "#fff", fontWeight: 600, fontSize: 14, margin: 0 }}>{l.name}</p>
-                    <p style={{ color: "#71717a", fontSize: 12, margin: 0 }}>{l.target}</p>
+                    <p style={{ color: "#fff", fontWeight: 700, fontSize: 17, margin: 0 }}>{l.name}</p>
+                    <p style={{ color: "#71717a", fontSize: 14, margin: "3px 0 0" }}>{l.target}</p>
                   </div>
                 </button>
               );

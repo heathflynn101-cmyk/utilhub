@@ -47,7 +47,7 @@ const LINEUPS = [
     id: "inf_coffins_smoke",
     mapId: "inferno", typeId: "smoke",
     name: "Coffins Smoke", target: "B-Site Coffins", difficulty: 2,
-    position: { x: 68, y: 55 },
+    position: { x: 50, y: 10 },
     media: "https://assets.csnades.gg/nades/inferno-smoke-j6asRNfisY/hq.mp4",
     stats: { airTime: 4.5, throwTime: 11.0, throw: "Running + Jump Throw", precision: "Very Precise", side: "T" },
   },
