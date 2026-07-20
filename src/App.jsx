@@ -263,7 +263,7 @@ export default function App() {
           })}
         </div>
         <div
-          style={{ position: "relative", margin: "0 16px", borderRadius: 12, overflow: "hidden", border: "1px solid #27272a", background: "#0a0a0a", aspectRatio: "1/1", maxHeight: "42vw" }}>
+          style={{ position: "relative", margin: "0 16px", borderRadius: 12, overflow: "hidden", border: "1px solid #27272a", background: "#0a0a0a", aspectRatio: "1/1" }}>
           {map.radar ? (
             <img
               src={map.radar}
@@ -309,21 +309,18 @@ export default function App() {
               </div>
             </div>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              <p style={{ color: "#52525b", fontSize: 11, fontFamily: "monospace", letterSpacing: "0.1em", marginBottom: 4 }}>TAP A MARKER OR SELECT BELOW</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <p style={{ color: "#3f3f46", fontSize: 10, fontFamily: "monospace", letterSpacing: "0.1em", marginBottom: 2 }}>TAP A MARKER ON THE MAP</p>
               {mapLineups.map((l) => {
                 const type = UTIL_TYPES.find((t) => t.id === l.typeId);
                 return (
-                  <button key={l.id} onClick={() => { setDetail(l); setView("DETAIL"); }}
-                    style={{ display: "flex", alignItems: "center", gap: 12, background: "#18181b", border: "1px solid #27272a", borderRadius: 10, padding: "12px 14px", textAlign: "left", cursor: "pointer", width: "100%" }}>
-                    <span style={{ width: 34, height: 34, borderRadius: "50%", flexShrink: 0, background: type?.color + "22", border: `1px solid ${type?.color}55`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      {type && <type.icon size={15} color={type.color} />}
+                  <button key={l.id} onClick={() => setPinned(l.id)}
+                    style={{ display: "flex", alignItems: "center", gap: 8, background: "#131316", border: "1px solid #1f1f23", borderRadius: 8, padding: "6px 10px", textAlign: "left", cursor: "pointer", width: "100%" }}>
+                    <span style={{ width: 20, height: 20, borderRadius: "50%", flexShrink: 0, background: type?.color + "22", border: `1px solid ${type?.color}55`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      {type && <type.icon size={10} color={type.color} />}
                     </span>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ color: "#fff", fontWeight: 600, fontSize: 14, margin: 0 }}>{l.name}</p>
-                      <p style={{ color: "#71717a", fontSize: 12, margin: 0 }}>{l.target}</p>
-                    </div>
-                    <span style={{ color: diffColor(l.difficulty), fontSize: 11, fontWeight: 700, fontFamily: "monospace" }}>
+                    <p style={{ flex: 1, minWidth: 0, color: "#a1a1aa", fontWeight: 500, fontSize: 12, margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{l.name}</p>
+                    <span style={{ color: diffColor(l.difficulty), fontSize: 9, fontWeight: 700, fontFamily: "monospace", flexShrink: 0 }}>
                       {diffLabel(l.difficulty)}
                     </span>
                   </button>
