@@ -143,6 +143,17 @@ export default function App() {
   const [uid,        setUid]        = useState(null);
   const [lineups,        setLineups]        = useState([]);
   const [lineupsLoading, setLineupsLoading]  = useState(true);
+  const [isLandscape,    setIsLandscape]     = useState(false);
+
+  // Track device orientation so the lineup video can go big/fullscreen when
+  // the phone is turned sideways.
+  useEffect(() => {
+    const mq = window.matchMedia("(orientation: landscape)");
+    const handler = () => setIsLandscape(mq.matches);
+    handler();
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
 
   // Load lineups from Firestore in real-time
   useEffect(() => {
@@ -445,6 +456,35 @@ export default function App() {
     const type  = UTIL_TYPES.find((t) => t.id === detail.typeId);
     const map   = MAPS.find((m) => m.id === detail.mapId);
     const saved = isSaved(detail.id);
+
+    // Turn the phone sideways -> the lineup video takes over the whole
+    // screen instead of being squeezed into the portrait card layout.
+    if (isLandscape && detail.media) {
+      const isVideo = detail.media.endsWith(".mp4") || detail.media.endsWith(".webm");
+      return (
+        <div style={{ position: "fixed", inset: 0, background: "#000", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          {isVideo ? (
+            <video src={detail.media} controls autoPlay loop muted playsInline style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} />
+          ) : (
+            <img src={detail.media} alt={detail.name} style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} />
+          )}
+          <button onClick={() => setView(activeMap ? "MAP_VIEW" : "PLAYBOOK")}
+            style={{ position: "absolute", top: 12, left: 12, background: "rgba(0,0,0,0.6)", border: "none", borderRadius: 8, padding: 8, cursor: "pointer" }}>
+            <ChevronLeft size={20} color="#fff" />
+          </button>
+          <div style={{ position: "absolute", top: 12, right: 12, display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: "#fff", background: "rgba(0,0,0,0.6)", borderRadius: 6, padding: "4px 9px" }}>
+              {detail.name}
+            </span>
+            <button onClick={() => toggleSave(detail)}
+              style={{ background: saved ? "#22c55e" : "rgba(0,0,0,0.6)", border: "none", borderRadius: 8, padding: 8, cursor: "pointer", display: "flex" }}>
+              {saved ? <Check size={16} color="#000" /> : <Bookmark size={16} color="#fff" />}
+            </button>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
         <header style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 16px", borderBottom: "1px solid #18181b" }}>
