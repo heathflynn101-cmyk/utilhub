@@ -462,9 +462,9 @@ export default function App() {
     if (isLandscape && detail.media) {
       const isVideo = detail.media.endsWith(".mp4") || detail.media.endsWith(".webm");
       return (
-        <div style={{ position: "fixed", inset: 0, background: "#000", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ position: "fixed", inset: 0, background: "#000", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
           {isVideo ? (
-            <video src={detail.media} controls autoPlay loop muted playsInline style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} />
+            <video src={detail.media} controls autoPlay loop muted playsInline style={{ width: "100%", height: "100%", objectFit: "contain", display: "block", transform: "scale(1.12)" }} />
           ) : (
             <img src={detail.media} alt={detail.name} style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} />
           )}
@@ -501,10 +501,10 @@ export default function App() {
           </span>
         </header>
         <div style={{ flex: 1, overflowY: "auto" }}>
-          <div style={{ aspectRatio: "4/3", width: "100%", background: "#18181b" }}>
+          <div style={{ aspectRatio: "4/3", width: "100%", background: "#18181b", overflow: "hidden" }}>
             {detail.media ? (
               detail.media.endsWith(".mp4") || detail.media.endsWith(".webm") ? (
-                <video src={detail.media} controls autoPlay loop muted playsInline style={{ width: "100%", height: "100%", objectFit: "contain", display: "block", background: "#000" }} />
+                <video src={detail.media} controls autoPlay loop muted playsInline style={{ width: "100%", height: "100%", objectFit: "contain", display: "block", background: "#000", transform: "scale(1.12)" }} />
               ) : (
                 <img src={detail.media} alt={detail.name} style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.85, display: "block" }} />
               )
