@@ -36,7 +36,7 @@ const diffColor = (n) => ["", "#22c55e", "#eab308", "#ef4444"][n] || "#64748b";
 // Clusters lineups that land within `threshold` map-percentage-points of each
 // other into a single marker group, so overlapping smokes for the same spot
 // don't stack as separate icons. Group id is stable regardless of item order.
-function groupByPosition(items, threshold = 6) {
+function groupByPosition(items, threshold = 2) {
   const groups = [];
   for (const item of items) {
     const g = groups.find((g) => {
