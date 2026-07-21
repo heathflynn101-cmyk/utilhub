@@ -33,15 +33,41 @@ const UTIL_TYPES = [
 const diffLabel = (n) => ["", "Easy", "Medium", "Hard"][n] || "";
 const diffColor = (n) => ["", "#22c55e", "#eab308", "#ef4444"][n] || "#64748b";
 
-function MapDot({ lineup, isActive, onClick }) {
-  const type = UTIL_TYPES.find((t) => t.id === lineup.typeId);
+// Clusters lineups that land within `threshold` map-percentage-points of each
+// other into a single marker group, so overlapping smokes for the same spot
+// don't stack as separate icons. Group id is stable regardless of item order.
+function groupByPosition(items, threshold = 6) {
+  const groups = [];
+  for (const item of items) {
+    const g = groups.find((g) => {
+      const dx = g.position.x - item.position.x;
+      const dy = g.position.y - item.position.y;
+      return Math.hypot(dx, dy) <= threshold;
+    });
+    if (g) {
+      g.items.push(item);
+      g.position = {
+        x: g.items.reduce((s, i) => s + i.position.x, 0) / g.items.length,
+        y: g.items.reduce((s, i) => s + i.position.y, 0) / g.items.length,
+      };
+    } else {
+      groups.push({ position: { ...item.position }, items: [item] });
+    }
+  }
+  return groups.map((g) => ({ ...g, id: g.items.map((i) => i.id).sort().join("|") }));
+}
+
+function MapDot({ group, isActive, onClick }) {
+  const primary = group.items[0];
+  const count = group.items.length;
+  const type = UTIL_TYPES.find((t) => t.id === primary.typeId);
   return (
     <button
       onClick={(e) => { e.stopPropagation(); onClick(); }}
       style={{
         position: "absolute",
-        left: lineup.position.x + "%",
-        top: lineup.position.y + "%",
+        left: group.position.x + "%",
+        top: group.position.y + "%",
         transform: "translate(-50%, -50%)",
         zIndex: isActive ? 20 : 10,
         transition: "all 0.15s ease",
@@ -57,7 +83,7 @@ function MapDot({ lineup, isActive, onClick }) {
         cursor: "pointer",
         touchAction: "manipulation",
       }}
-      aria-label={lineup.name}
+      aria-label={count > 1 ? `${count} lineups` : primary.name}
     >
       {isActive && (
         <span style={{
@@ -77,6 +103,17 @@ function MapDot({ lineup, isActive, onClick }) {
       }}>
         {type && <type.icon size={isActive ? 16 : 12} color={isActive ? "#fff" : type.color} />}
       </span>
+      {count > 1 && (
+        <span style={{
+          position: "absolute", top: -3, right: -3, minWidth: 16, height: 16,
+          borderRadius: 8, background: "#2563eb", color: "#fff",
+          fontSize: 9, fontWeight: 700, display: "flex", alignItems: "center",
+          justifyContent: "center", padding: "0 3px", border: "1.5px solid #000",
+          fontFamily: "monospace",
+        }}>
+          {count}
+        </span>
+      )}
     </button>
   );
 }
@@ -239,7 +276,13 @@ export default function App() {
     if (!map) return null;
 
     const effectiveLineups = mapLineups;
-    const pinnedLineup = effectiveLineups.find((l) => l.id === pinned);
+    // In edit mode keep every lineup as its own marker (1 item per group) so
+    // repositioning stays unambiguous; otherwise cluster same-spot smokes.
+    const displayGroups = editMode
+      ? effectiveLineups.map((l) => ({ id: l.id, position: l.position, items: [l] }))
+      : groupByPosition(effectiveLineups);
+    const pinnedGroup = displayGroups.find((g) => g.id === pinned);
+    const pinnedLineup = pinnedGroup && pinnedGroup.items.length === 1 ? pinnedGroup.items[0] : null;
 
     const handleMapClick = (e) => {
       if (!editMode || !pinnedLineup) return;
@@ -306,12 +349,12 @@ export default function App() {
               <Map size={80} color={map.accent} />
             </div>
           )}
-          {effectiveLineups.map((l) => (
+          {displayGroups.map((g) => (
             <MapDot
-              key={l.id}
-              lineup={l}
-              isActive={pinned === l.id}
-              onClick={() => setPinned(pinned === l.id ? null : l.id)}
+              key={g.id}
+              group={g}
+              isActive={pinned === g.id}
+              onClick={() => setPinned(pinned === g.id ? null : g.id)}
             />
           ))}
         </div>
@@ -336,6 +379,39 @@ export default function App() {
                   style={{ padding: "10px 14px", borderRadius: 8, cursor: "pointer", border: `1px solid ${isSaved(pinnedLineup.id) ? "#22c55e" : "#27272a"}`, background: isSaved(pinnedLineup.id) ? "#22c55e22" : "#27272a", color: isSaved(pinnedLineup.id) ? "#22c55e" : "#a1a1aa", display: "flex", alignItems: "center", gap: 6, fontSize: 12, fontWeight: 600 }}>
                   {isSaved(pinnedLineup.id) ? <><Check size={14} /> Saved</> : <><Bookmark size={14} /> Save</>}
                 </button>
+              </div>
+            </div>
+          ) : pinnedGroup ? (
+            <div style={{ background: "#18181b", border: `1px solid ${UTIL_TYPES.find((t) => t.id === pinnedGroup.items[0].typeId)?.color ?? "#27272a"}55`, borderRadius: 12, padding: 14 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+                <p style={{ color: "#fff", fontWeight: 700, fontSize: 15, margin: 0 }}>
+                  {pinnedGroup.items.every((i) => i.target === pinnedGroup.items[0].target) ? pinnedGroup.items[0].target : "Multiple targets"}
+                </p>
+                <span style={{ fontSize: 10, fontWeight: 700, color: "#71717a", fontFamily: "monospace", letterSpacing: "0.06em" }}>
+                  {pinnedGroup.items.length} LINEUPS
+                </span>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                {pinnedGroup.items.map((item) => {
+                  const type = UTIL_TYPES.find((t) => t.id === item.typeId);
+                  return (
+                    <button key={item.id} onClick={() => { setDetail(item); setView("DETAIL"); }}
+                      style={{ display: "flex", alignItems: "center", gap: 10, background: "#131316", border: "1px solid #27272a", borderRadius: 10, padding: "10px 12px", textAlign: "left", cursor: "pointer", width: "100%" }}>
+                      <span style={{ width: 28, height: 28, borderRadius: "50%", flexShrink: 0, background: type?.color + "22", border: `1px solid ${type?.color}55`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        {type && <type.icon size={13} color={type.color} />}
+                      </span>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ color: "#fff", fontWeight: 600, fontSize: 13, margin: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item.name}</p>
+                        {item.stats?.throw && (
+                          <p style={{ color: "#71717a", fontSize: 11, margin: "2px 0 0" }}>{item.stats.throw}</p>
+                        )}
+                      </div>
+                      <span style={{ fontSize: 9, fontWeight: 700, color: diffColor(item.difficulty), fontFamily: "monospace", flexShrink: 0 }}>
+                        {diffLabel(item.difficulty)}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           ) : (
