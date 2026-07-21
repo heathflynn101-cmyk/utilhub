@@ -19,6 +19,7 @@ const MAPS = [
   { id: "inferno", name: "Inferno", accent: "#e84020", radar: "https://raw.githubusercontent.com/2mlml/cs2-radar-images/master/de_inferno.png", thumbnail: "https://raw.githubusercontent.com/ghostcap-gaming/cs2-map-images/main/cs2/de_inferno.png" },
   { id: "dust2",   name: "Dust II", accent: "#d4a855", radar: "https://raw.githubusercontent.com/2mlml/cs2-radar-images/master/de_dust2.png",   thumbnail: "https://raw.githubusercontent.com/ghostcap-gaming/cs2-map-images/main/cs2/de_dust2.png" },
   { id: "ancient", name: "Ancient", accent: "#7dbf7d", radar: "https://raw.githubusercontent.com/2mlml/cs2-radar-images/master/de_ancient.png", thumbnail: "https://raw.githubusercontent.com/ghostcap-gaming/cs2-map-images/main/cs2/de_ancient.png" },
+  { id: "anubis",  name: "Anubis",  accent: "#5ec8d8", radar: "https://raw.githubusercontent.com/2mlml/cs2-radar-images/master/de_anubis.png",  thumbnail: "https://raw.githubusercontent.com/ghostcap-gaming/cs2-map-images/main/cs2/de_anubis.png" },
 ];
 
 const UTIL_TYPES = [
