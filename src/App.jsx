@@ -214,7 +214,7 @@ export default function App() {
       { id: "PLAYBOOK",   label: "Playbook", icon: BookMarked },
     ];
     return (
-      <nav style={{ display: "flex", borderTop: "1px solid #18181b", background: "#000", paddingBottom: 8 }}>
+      <nav style={{ display: "flex", borderTop: "1px solid #18181b", background: "#000", paddingBottom: "calc(8px + env(safe-area-inset-bottom))" }}>
         {tabs.map(({ id, label, icon: Icon }) => {
           const active = view === id || (view === "MAP_VIEW" && id === "MAP_SELECT");
           return (
@@ -471,10 +471,10 @@ export default function App() {
             <img src={detail.media} alt={detail.name} style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} />
           )}
           <button onClick={() => setView(activeMap ? "MAP_VIEW" : "PLAYBOOK")}
-            style={{ position: "absolute", top: 12, left: 12, background: "rgba(0,0,0,0.6)", border: "none", borderRadius: 8, padding: 8, cursor: "pointer" }}>
+            style={{ position: "absolute", top: "calc(12px + env(safe-area-inset-top))", left: "calc(12px + env(safe-area-inset-left))", background: "rgba(0,0,0,0.6)", border: "none", borderRadius: 8, padding: 8, cursor: "pointer" }}>
             <ChevronLeft size={20} color="#fff" />
           </button>
-          <div style={{ position: "absolute", top: 12, right: 12, display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ position: "absolute", top: "calc(12px + env(safe-area-inset-top))", right: "calc(12px + env(safe-area-inset-right))", display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ fontSize: 11, fontWeight: 700, color: "#fff", background: "rgba(0,0,0,0.6)", borderRadius: 6, padding: "4px 9px" }}>
               {detail.name}
             </span>
@@ -601,7 +601,7 @@ export default function App() {
         @keyframes spin { to { transform: rotate(360deg); } }
         ::-webkit-scrollbar { width: 0; }
       `}</style>
-      <div style={{ maxWidth: 600, width: "100%", margin: "0 auto", height: "100dvh", background: "#000", display: "flex", flexDirection: "column", fontFamily: "monospace, -apple-system, sans-serif", overflow: "hidden" }}>
+      <div style={{ maxWidth: 600, width: "100%", margin: "0 auto", height: "100dvh", background: "#000", display: "flex", flexDirection: "column", fontFamily: "monospace, -apple-system, sans-serif", overflow: "hidden", paddingTop: "env(safe-area-inset-top)", paddingLeft: "env(safe-area-inset-left)", paddingRight: "env(safe-area-inset-right)" }}>
         <div style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
           {view === "MAP_SELECT" && <ViewMapSelect />}
           {view === "MAP_VIEW"   && <ViewMapView />}
