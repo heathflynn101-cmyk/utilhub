@@ -464,7 +464,7 @@ export default function App() {
       return (
         <div style={{ position: "fixed", inset: 0, background: "#000", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
           {isVideo ? (
-            <video src={detail.media} controls autoPlay loop muted playsInline style={{ width: "100%", height: "100%", objectFit: "contain", display: "block", transform: "scale(1.12)" }} />
+            <video src={detail.media} controls autoPlay loop muted playsInline style={{ width: "100%", height: "100%", objectFit: "contain", display: "block", transform: "scale(1.28) translate(4%, -4%)" }} />
           ) : (
             <img src={detail.media} alt={detail.name} style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} />
           )}
@@ -501,10 +501,10 @@ export default function App() {
           </span>
         </header>
         <div style={{ flex: 1, overflowY: "auto" }}>
-          <div style={{ aspectRatio: "4/3", width: "100%", background: "#18181b", overflow: "hidden" }}>
+          <div style={{ aspectRatio: "4/2.6", width: "100%", background: "#18181b", overflow: "hidden" }}>
             {detail.media ? (
               detail.media.endsWith(".mp4") || detail.media.endsWith(".webm") ? (
-                <video src={detail.media} controls autoPlay loop muted playsInline style={{ width: "100%", height: "100%", objectFit: "contain", display: "block", background: "#000", transform: "scale(1.12)" }} />
+                <video src={detail.media} controls autoPlay loop muted playsInline style={{ width: "100%", height: "100%", objectFit: "contain", display: "block", background: "#000", transform: "scale(1.28) translate(4%, -4%)" }} />
               ) : (
                 <img src={detail.media} alt={detail.name} style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.85, display: "block" }} />
               )
