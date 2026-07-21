@@ -503,7 +503,7 @@ export default function App() {
           </span>
         </header>
         <div style={{ flex: 1, overflowY: "auto" }}>
-          <div style={{ aspectRatio: "4/2.6", width: "100%", background: "#18181b", overflow: "hidden" }}>
+          <div style={{ aspectRatio: "4/2.1", width: "100%", background: "#18181b", overflow: "hidden" }}>
             {detail.media ? (
               detail.media.endsWith(".mp4") || detail.media.endsWith(".webm") ? (
                 <video key={detail.id} src={detail.media} controls autoPlay loop muted playsInline style={{ width: "100%", height: "100%", objectFit: "contain", display: "block", background: "#000", transform: "scale(1.28) translate(4%, -4%)" }} />
