@@ -37,14 +37,12 @@ export default defineConfig({
             },
           },
           {
+            // Videos are served straight from the network, not through the SW cache.
+            // CacheFirst doesn't correctly honor HTTP Range requests here, and iOS
+            // Safari refuses to play video when it doesn't get proper 206 Partial
+            // Content responses — that was breaking playback on iPhone entirely.
             urlPattern: ({ url }) => url.hostname === 'assets.csnades.gg',
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'lineup-video-cache',
-              expiration: { maxEntries: 60, maxAgeSeconds: 60 * 60 * 24 * 30 },
-              cacheableResponse: { statuses: [0, 200] },
-              rangeRequests: true,
-            },
+            handler: 'NetworkOnly',
           },
         ],
       },
