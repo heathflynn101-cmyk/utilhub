@@ -1,0 +1,19 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Lineups are public content — anyone can view them, but only the
+    // admin account (used by Claude for making edits) can write.
+    match /lineups/{lineupId} {
+      allow read: if true;
+      allow write: if request.auth != null
+        && request.auth.token.email == 'utilhub-admin@deft-chariot-498407-p4.iam.local';
+    }
+
+    // Each user's saved Playbook lives at playbooks/{their own uid} — they
+    // can only ever read/write their own doc, never anyone else's.
+    match /playbooks/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+  }
+}

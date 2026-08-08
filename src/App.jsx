@@ -11,7 +11,7 @@ import {
   BookMarked, ChevronLeft, Map, Crosshair, Flame,
   Wind, Star, Users, Check, Loader2,
   SlidersHorizontal, Bookmark, BookOpen,
-  AlertCircle, Target, Pencil, X
+  AlertCircle, Target
 } from "lucide-react";
 
 const MAPS = [
@@ -139,8 +139,6 @@ export default function App() {
   const [activeType, setActiveType] = useState("all");
   const [pinned,     setPinned]     = useState(null);
   const [detail,     setDetail]     = useState(null);
-  const [editMode,   setEditMode]   = useState(false);
-  const [savingPos,  setSavingPos]  = useState(false);
   const [playbook,   setPlaybook]   = useState({});
   const [uid,        setUid]        = useState(null);
   const [lineups,        setLineups]        = useState([]);
@@ -218,7 +216,7 @@ export default function App() {
         {tabs.map(({ id, label, icon: Icon }) => {
           const active = view === id || (view === "MAP_VIEW" && id === "MAP_SELECT");
           return (
-            <button key={id} onClick={() => { setActiveMap(null); setPinned(null); setEditMode(false); setView(id); }}
+            <button key={id} onClick={() => { setActiveMap(null); setPinned(null); setView(id); }}
               style={{ flex: 1, padding: "12px 0 10px", background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 4, color: active ? "#2563eb" : "#52525b", transition: "color 0.15s" }}>
               <Icon size={20} />
               <span style={{ fontSize: 10, fontWeight: 600, fontFamily: "monospace", letterSpacing: "0.06em" }}>{label.toUpperCase()}</span>
@@ -289,29 +287,14 @@ export default function App() {
     if (!map) return null;
 
     const effectiveLineups = mapLineups;
-    // In edit mode keep every lineup as its own marker (1 item per group) so
-    // repositioning stays unambiguous; otherwise cluster same-spot smokes.
-    const displayGroups = editMode
-      ? effectiveLineups.map((l) => ({ id: l.id, position: l.position, items: [l] }))
-      : groupByPosition(effectiveLineups);
+    const displayGroups = groupByPosition(effectiveLineups);
     const pinnedGroup = displayGroups.find((g) => g.id === pinned);
     const pinnedLineup = pinnedGroup && pinnedGroup.items.length === 1 ? pinnedGroup.items[0] : null;
-
-    const handleMapClick = (e) => {
-      if (!editMode || !pinnedLineup) return;
-      const rect = e.currentTarget.getBoundingClientRect();
-      const x = Math.max(0, Math.min(100, Math.round(((e.clientX - rect.left) / rect.width) * 100)));
-      const y = Math.max(0, Math.min(100, Math.round(((e.clientY - rect.top) / rect.height) * 100)));
-      setSavingPos(true);
-      setDoc(doc(db, "lineups", pinnedLineup.id), { position: { x, y } }, { merge: true })
-        .catch(console.error)
-        .finally(() => setSavingPos(false));
-    };
 
     return (
       <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
         <header style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 16px", borderBottom: "1px solid #18181b" }}>
-          <button onClick={() => { setView("MAP_SELECT"); setActiveMap(null); setPinned(null); setEditMode(false); }}
+          <button onClick={() => { setView("MAP_SELECT"); setActiveMap(null); setPinned(null); }}
             style={{ background: "#18181b", border: "none", borderRadius: 8, padding: 8, cursor: "pointer" }}>
             <ChevronLeft size={18} color="#a1a1aa" />
           </button>
@@ -319,23 +302,7 @@ export default function App() {
             <p style={{ color: "#fff", fontWeight: 700, fontSize: 16, margin: 0 }}>{map.name}</p>
             <p style={{ color: "#52525b", fontSize: 11, fontFamily: "monospace", margin: 0 }}>{effectiveLineups.length} LINEUPS</p>
           </div>
-          <button onClick={() => setEditMode((v) => !v)}
-            style={{ display: "flex", alignItems: "center", gap: 6, background: editMode ? "#2563eb" : "#18181b", border: "none", borderRadius: 8, padding: "8px 12px", cursor: "pointer" }}>
-            {editMode ? <X size={16} color="#fff" /> : <Pencil size={16} color="#a1a1aa" />}
-            <span style={{ fontSize: 11, fontWeight: 700, fontFamily: "monospace", color: editMode ? "#fff" : "#a1a1aa" }}>
-              {editMode ? "DONE" : "EDIT"}
-            </span>
-          </button>
         </header>
-        {editMode && (
-          <div style={{ padding: "8px 16px", background: "#2563eb22", borderBottom: "1px solid #2563eb55" }}>
-            <p style={{ color: "#60a5fa", fontSize: 12, margin: 0 }}>
-              {pinnedLineup
-                ? `Tap the map to move "${pinnedLineup.name}"${savingPos ? " · saving…" : ""}`
-                : "Select a marker below, then tap the map to reposition it"}
-            </p>
-          </div>
-        )}
         <div style={{ padding: "10px 16px", display: "flex", gap: 8, overflowX: "auto" }}>
           {[{ id: "all", label: "All", icon: SlidersHorizontal, color: "#a1a1aa" }, ...UTIL_TYPES].map((t) => {
             const active = activeType === t.id;
@@ -348,8 +315,7 @@ export default function App() {
           })}
         </div>
         <div
-          onClick={handleMapClick}
-          style={{ position: "relative", margin: "0 16px", borderRadius: 12, overflow: "hidden", border: editMode ? "2px solid #2563eb" : "1px solid #27272a", background: "#0a0a0a", aspectRatio: "1/1", cursor: editMode && pinnedLineup ? "crosshair" : "default" }}>
+          style={{ position: "relative", margin: "0 16px", borderRadius: 12, overflow: "hidden", border: "1px solid #27272a", background: "#0a0a0a", aspectRatio: "1/1" }}>
           {map.radar ? (
             <img
               src={map.radar}
